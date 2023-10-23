@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
-import com.palmeiras.aluguel.aluguel.Enum.Status;
+import com.palmeiras.aluguel.aluguel.enumAluguel.Status;
 
 @Repository
 public interface AluguelRepository extends MongoRepository<Aluguel, String> {
