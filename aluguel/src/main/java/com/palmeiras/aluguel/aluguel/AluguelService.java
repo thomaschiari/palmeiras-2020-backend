@@ -26,7 +26,7 @@ public class AluguelService {
         else if (cpfCorretor == null) return aluguelRepository.findByStatusAndCpfLocatorio(s, cpfLocatario);
         else if (cpfLocatario == null) return aluguelRepository.findByStatusAndCpfCorretor(s, cpfCorretor);
         else return aluguelRepository.findByStatusAndCpfCorretorAndCpfLocatorio(s, cpfCorretor, cpfLocatario);
-        
+
     }
     
 }
