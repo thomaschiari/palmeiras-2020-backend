@@ -14,4 +14,9 @@ public class ExceptionDTO {
     private Integer code;
     private LocalDateTime time;
 
+    public ExceptionDTO(String message, Integer code, LocalDateTime time) {
+        this.message = message;
+        this.code = code;
+        this.time = time;
+    }
 }
