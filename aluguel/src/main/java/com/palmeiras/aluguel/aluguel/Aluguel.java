@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import com.palmeiras.aluguel.aluguel.enumAluguel.Status;
+import com.palmeiras.aluguel.aluguel.enumerate.Status;
 
 import lombok.Getter;
 import lombok.Setter;

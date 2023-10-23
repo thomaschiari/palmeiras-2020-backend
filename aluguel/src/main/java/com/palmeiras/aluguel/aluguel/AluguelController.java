@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.palmeiras.aluguel.aluguel.dto.AluguelReturnDTO;
-import com.palmeiras.aluguel.aluguel.enumAluguel.Status;
+import com.palmeiras.aluguel.aluguel.enumerate.Status;
 
 @RestController
 @RequestMapping("/aluguel")

@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.palmeiras.aluguel.aluguel.dto.AluguelReturnDTO;
-import com.palmeiras.aluguel.aluguel.enumAluguel.Status;
+import com.palmeiras.aluguel.aluguel.enumerate.Status;
 
 @Service
 public class AluguelService {
