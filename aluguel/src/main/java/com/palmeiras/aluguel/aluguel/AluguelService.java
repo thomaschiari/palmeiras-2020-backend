@@ -7,7 +7,9 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import com.palmeiras.aluguel.aluguel.dto.AluguelReturnDTO;
 import com.palmeiras.aluguel.aluguel.dto.AluguelSaveDTO;
@@ -47,8 +49,38 @@ public class AluguelService {
             mudar o status do imóvel. Se tudo der certo ela deve salvar o aluguel com o status SUCESSO.
             Se alguma das validações derem errado, ela deve salvar o aluguel com status ERRO.
         */
-        
+
         Boolean erro = false;
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<Void> response = 
+                restTemplate.getForEntity("http://localhost:8080/cliente/" + aluguelDTO.getCpfLocatario(), null);
+        if(!response.getStatusCode().is2xxSuccessful()){
+            erro = true;
+        }
+
+        restTemplate = new RestTemplate();
+        response = restTemplate.getForEntity("http://localhost:8080/corretor/" + aluguelDTO.getCpfCorretor(), null);
+        if(!response.getStatusCode().is2xxSuccessful()){
+            erro = true;
+        }
+        
+        Aluguel aluguel = new Aluguel();
+        
+        aluguel.convertSaveDTO(aluguelDTO);
+        aluguel.setDataAluguel(LocalDateTime.now());
+        aluguel.setIdentifier(UUID.randomUUID().toString());
+
+        if(!erro){
+            restTemplate = new RestTemplate();
+            response = restTemplate.getForEntity("http://localhost:8080/imovel/aluga" + aluguelDTO.getIdImovel(), null);
+            if(response.getStatusCode().is2xxSuccessful()){
+                aluguel.setStatus(Status.SUCESSO);
+            } else {
+                aluguel.setStatus(Status.ERRO);
+            }
+        } else {
+            aluguel.setStatus(Status.ERRO);
+        }
 
         // Valida se o cliente existe (Listagem de clientes:), se n existir erro = True
 
@@ -61,33 +93,6 @@ public class AluguelService {
             retornar sucesso. Se o imóvel não existir deve retornar um erro 404, se ele já estiver alugado
             ou vendido deve retornar um erro 400.
             */
-
-        Aluguel aluguel = new Aluguel();
-
-        if (erro) {
-
-            // Salva o aluguel com status ERRO
-
-            aluguel.setCpfCorretor(aluguelDTO.getCpfCorretor());
-            aluguel.setCpfLocatorio(aluguelDTO.getCpfLocatario());
-            aluguel.setIdImovel(aluguelDTO.getIdImovel());
-            aluguel.setStatus(Status.ERRO);
-            aluguel.setDataAluguel(LocalDateTime.now());
-            aluguel.setIdentifier(UUID.randomUUID().toString());
-
-
-
-        } else {
-
-            // Salva o aluguel com status SUCESSO
-
-            aluguel.setCpfCorretor(aluguelDTO.getCpfCorretor());
-            aluguel.setCpfLocatorio(aluguelDTO.getCpfLocatario());
-            aluguel.setIdImovel(aluguelDTO.getIdImovel());
-            aluguel.setStatus(Status.SUCESSO);
-            aluguel.setDataAluguel(LocalDateTime.now());
-            aluguel.setIdentifier(UUID.randomUUID().toString());
-        }
 
         aluguelRepository.save(aluguel);
 
