@@ -18,6 +18,8 @@ import com.palmeiras.aluguel.aluguel.dto.AluguelReturnDTO;
 import com.palmeiras.aluguel.aluguel.dto.AluguelSuccesDTO;
 import com.palmeiras.aluguel.aluguel.dto.AluguelSaveDTO;
 import com.palmeiras.aluguel.aluguel.enumerate.Status;
+import com.palmeiras.aluguel.aluguel.exception.CpfCorretorDoesNotExistException;
+import com.palmeiras.aluguel.aluguel.exception.CpfLocatarioDoesNotExistException;
 
 @Service
 public class AluguelService {
@@ -25,12 +27,10 @@ public class AluguelService {
     @Autowired
     private AluguelRepository aluguelRepository;
 
-    /*
-    Lista aluguéis: Lista todos os alugueis cadastrados, deve ser possível fazer um filtro pelo
-    status do aluguel e também pelo cpf do corretor e do locatário. 
-    */
+    public List<AluguelReturnDTO> findAlugueis(Status s, String cpfCorretor, String cpfLocatario) {
+        if (cpfCorretor != null && !aluguelRepository.existsByCpfCorretor(cpfCorretor)) throw new CpfCorretorDoesNotExistException();
+        if (cpfLocatario != null && !aluguelRepository.existsByCpfLocatorio(cpfLocatario)) throw new CpfLocatarioDoesNotExistException();
 
-    public List<AluguelSuccesDTO> findAlugueis(Status s, String cpfCorretor, String cpfLocatario) {
         List<Aluguel> alugueis;
 
         if (s == null && cpfCorretor == null && cpfLocatario == null) alugueis = aluguelRepository.findAll();
