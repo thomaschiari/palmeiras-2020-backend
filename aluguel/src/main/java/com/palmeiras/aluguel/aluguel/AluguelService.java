@@ -7,11 +7,15 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import com.palmeiras.aluguel.aluguel.dto.AluguelErroReturnDTO;
 import com.palmeiras.aluguel.aluguel.dto.AluguelReturnDTO;
+import com.palmeiras.aluguel.aluguel.dto.AluguelSuccesDTO;
 import com.palmeiras.aluguel.aluguel.dto.AluguelSaveDTO;
 import com.palmeiras.aluguel.aluguel.enumerate.Status;
 
@@ -26,7 +30,7 @@ public class AluguelService {
     status do aluguel e também pelo cpf do corretor e do locatário. 
     */
 
-    public List<AluguelReturnDTO> findAlugueis(Status s, String cpfCorretor, String cpfLocatario) {
+    public List<AluguelSuccesDTO> findAlugueis(Status s, String cpfCorretor, String cpfLocatario) {
         List<Aluguel> alugueis;
 
         if (s == null && cpfCorretor == null && cpfLocatario == null) alugueis = aluguelRepository.findAll();
@@ -38,7 +42,7 @@ public class AluguelService {
         else if (cpfLocatario == null) alugueis = aluguelRepository.findByStatusAndCpfCorretor(s, cpfCorretor);
         else alugueis = aluguelRepository.findByStatusAndCpfCorretorAndCpfLocatorio(s, cpfCorretor, cpfLocatario);
         
-        return alugueis.stream().map(alu -> AluguelReturnDTO.convert(alu)).collect(Collectors.toList());
+        return alugueis.stream().map(alu -> AluguelSuccesDTO.convert(alu)).collect(Collectors.toList());
     }
 
     public AluguelReturnDTO alugarImovel(AluguelSaveDTO aluguelDTO) {
@@ -49,18 +53,20 @@ public class AluguelService {
             mudar o status do imóvel. Se tudo der certo ela deve salvar o aluguel com o status SUCESSO.
             Se alguma das validações derem errado, ela deve salvar o aluguel com status ERRO.
         */
-
+        String msg = "";
         Boolean erro = false;
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<Void> response = 
                 restTemplate.getForEntity("http://localhost:8080/cliente/" + aluguelDTO.getCpfLocatario(), null);
         if(!response.getStatusCode().is2xxSuccessful()){
+            msg += "Cliente não encontrado.\n";
             erro = true;
         }
 
         restTemplate = new RestTemplate();
         response = restTemplate.getForEntity("http://localhost:8080/corretor/" + aluguelDTO.getCpfCorretor(), null);
         if(!response.getStatusCode().is2xxSuccessful()){
+            msg += "Corretor não encontrado.\n";
             erro = true;
         }
         
@@ -76,6 +82,11 @@ public class AluguelService {
             if(response.getStatusCode().is2xxSuccessful()){
                 aluguel.setStatus(Status.SUCESSO);
             } else {
+                if (response.getStatusCode() == HttpStatus.NOT_FOUND) {
+                    msg += "Imóvel não encontrado.\n";
+                } else if (response.getStatusCode() == HttpStatus.BAD_REQUEST) {
+                    msg += "Imóvel já alugado.\n";
+                }
                 aluguel.setStatus(Status.ERRO);
             }
         } else {
@@ -103,6 +114,13 @@ public class AluguelService {
         se não existir o corretor ou cliente deve retornar erro ou salva aluguel com status erro?
         */
 
-        return AluguelReturnDTO.convert(aluguel);
+        if (erro) {
+            AluguelErroReturnDTO erroDTO = new AluguelErroReturnDTO();
+            erroDTO.setAluguel(AluguelSuccesDTO.convert(aluguel));
+            erroDTO.setMsgErro(msg);
+            return erroDTO;
+        }
+
+        return AluguelSuccesDTO.convert(aluguel);
     }
 }
