@@ -31,6 +31,7 @@ public class AluguelService {
 
     public List<AluguelReturnDTO> findAlugueis(String aluguelStatus, String cpfCorretor, String cpfLocatario) {
         Status s = null;
+        aluguelStatus = aluguelStatus.toUpperCase();
 
         if(aluguelStatus != null){
             if(aluguelStatus.equals("ERRO") || aluguelStatus.equals("SUCESSO")){
