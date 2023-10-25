@@ -12,10 +12,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.palmeiras.aluguel.aluguel.dto.AluguelSuccesDTO;
 import com.palmeiras.aluguel.aluguel.dto.AluguelReturnDTO;
 import com.palmeiras.aluguel.aluguel.dto.AluguelSaveDTO;
-import com.palmeiras.aluguel.aluguel.enumerate.Status;
 
 @RestController
 @RequestMapping("/aluguel")
@@ -26,7 +24,7 @@ public class AluguelController {
 
 
     @GetMapping
-    public List<AluguelSuccesDTO> findAlugueis(@RequestParam(required = false) Status status, @RequestParam(required = false) String cpfCorretor, @RequestParam(required = false) String cpfLocatario) {
+    public List<AluguelReturnDTO> findAlugueis(@RequestParam(required = false) String status, @RequestParam(required = false) String cpfCorretor, @RequestParam(required = false) String cpfLocatario) {
         return aluguelService.findAlugueis(status, cpfCorretor, cpfLocatario);
     }
 
@@ -34,6 +32,6 @@ public class AluguelController {
     @ResponseStatus(HttpStatus.CREATED)
     public AluguelReturnDTO alugarImovel(@RequestBody AluguelSaveDTO aluguelDTO) {
         return aluguelService.alugarImovel(aluguelDTO);
-    }
+    }    
     
 }

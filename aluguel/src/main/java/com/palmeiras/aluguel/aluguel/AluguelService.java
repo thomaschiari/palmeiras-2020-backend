@@ -1,6 +1,5 @@
 package com.palmeiras.aluguel.aluguel;
 
-import java.sql.Date;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -8,7 +7,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -18,6 +16,9 @@ import com.palmeiras.aluguel.aluguel.dto.AluguelReturnDTO;
 import com.palmeiras.aluguel.aluguel.dto.AluguelSuccesDTO;
 import com.palmeiras.aluguel.aluguel.dto.AluguelSaveDTO;
 import com.palmeiras.aluguel.aluguel.enumerate.Status;
+import com.palmeiras.aluguel.aluguel.exception.CpfCorretorDoesNotExistException;
+import com.palmeiras.aluguel.aluguel.exception.CpfLocatarioDoesNotExistException;
+import com.palmeiras.aluguel.aluguel.exception.InvalidStatusException;
 
 @Service
 public class AluguelService {
@@ -25,12 +26,20 @@ public class AluguelService {
     @Autowired
     private AluguelRepository aluguelRepository;
 
-    /*
-    Lista aluguéis: Lista todos os alugueis cadastrados, deve ser possível fazer um filtro pelo
-    status do aluguel e também pelo cpf do corretor e do locatário. 
-    */
+    public List<AluguelReturnDTO> findAlugueis(String aluguelStatus, String cpfCorretor, String cpfLocatario) {
+        Status s = null;
 
-    public List<AluguelSuccesDTO> findAlugueis(Status s, String cpfCorretor, String cpfLocatario) {
+        if(aluguelStatus != null){
+            if(aluguelStatus.equals("ERRO") || aluguelStatus.equals("SUCESSO")){
+                s = Status.valueOf(aluguelStatus);
+            } else {
+                throw new InvalidStatusException();
+            }
+        }
+
+        if (cpfCorretor != null && !aluguelRepository.existsByCpfCorretor(cpfCorretor)) throw new CpfCorretorDoesNotExistException();
+        if (cpfLocatario != null && !aluguelRepository.existsByCpfLocatorio(cpfLocatario)) throw new CpfLocatarioDoesNotExistException();
+
         List<Aluguel> alugueis;
 
         if (s == null && cpfCorretor == null && cpfLocatario == null) alugueis = aluguelRepository.findAll();
@@ -55,9 +64,10 @@ public class AluguelService {
         */
         String msg = "";
         Boolean erro = false;
+        ResponseEntity<Void> response;
         RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<Void> response = 
-                restTemplate.getForEntity("http://localhost:8080/cliente/" + aluguelDTO.getCpfLocatario(), null);
+
+        response = restTemplate.getForEntity("http://localhost:8080/cliente/" + aluguelDTO.getCpfLocatario(), null);
         if(!response.getStatusCode().is2xxSuccessful()){
             msg += "Cliente não encontrado.\n";
             erro = true;
