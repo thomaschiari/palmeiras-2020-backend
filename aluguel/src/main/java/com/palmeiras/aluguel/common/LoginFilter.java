@@ -30,6 +30,8 @@ public class LoginFilter implements Filter {
 
         RestTemplate restTemplate = new RestTemplate();
 
+        
+
         try {
             ResponseEntity<TokenDTO> responseEntity = restTemplate.getForEntity("http://54.71.150.144:8082/token/" + token, TokenDTO.class);
             if (responseEntity.getStatusCode().is2xxSuccessful()) {

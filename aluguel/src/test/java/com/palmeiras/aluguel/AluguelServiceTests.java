@@ -16,6 +16,7 @@ import org.modelmapper.ModelMapper;
 import com.palmeiras.aluguel.aluguel.Aluguel;
 import com.palmeiras.aluguel.aluguel.AluguelRepository;
 import com.palmeiras.aluguel.aluguel.AluguelService;
+import com.palmeiras.aluguel.aluguel.dto.AluguelReturnDTO;
 import com.palmeiras.aluguel.aluguel.dto.AluguelSuccesDTO;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,7 +34,7 @@ public class AluguelServiceTests {
     void findAlugueisTestEmpty() {
         Mockito.when(aluguelRepository.findAll()).thenReturn(new ArrayList<>());
 
-        List<AluguelSuccesDTO> alugueis = aluguelService.findAlugueis(null, null, null);
+        List<AluguelReturnDTO> alugueis = aluguelService.findAlugueis(null, null, null);
 
         Assertions.assertEquals(0, alugueis.size());
 
@@ -47,7 +48,7 @@ public class AluguelServiceTests {
         alugueis.add(a);
         Mockito.when(aluguelRepository.findAll()).thenReturn(alugueis);
 
-        List<AluguelSuccesDTO> alugueisRetornados = aluguelService.findAlugueis(null, null, null);
+        List<AluguelReturnDTO> alugueisRetornados = aluguelService.findAlugueis(null, null, null);
 
         Assertions.assertEquals(1, alugueisRetornados.size());
     }
@@ -60,7 +61,7 @@ public class AluguelServiceTests {
         alugueis.add(a);
         Mockito.when(aluguelRepository.findByCpfCorretor("123")).thenReturn(alugueis);
 
-        List<AluguelSuccesDTO> alugueisRetornados = aluguelService.findAlugueis(null, "123", null);
+        List<AluguelReturnDTO> alugueisRetornados = aluguelService.findAlugueis(null, "123", null);
 
         Assertions.assertEquals(1, alugueisRetornados.size());
     }
