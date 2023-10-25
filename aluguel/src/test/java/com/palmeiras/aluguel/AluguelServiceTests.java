@@ -60,9 +60,6 @@ public class AluguelServiceTests {
         a.setCpfCorretor("123");
         alugueis.add(a);
 
-<<<<<<< HEAD
-        List<AluguelReturnDTO> alugueisRetornados = aluguelService.findAlugueis(null, "123", null);
-=======
         when(aluguelRepository.existsByCpfCorretor("123")).thenReturn(true);
         when(aluguelRepository.findByCpfCorretor("123")).thenReturn(alugueis);
         List<AluguelReturnDTO> alugueisRetornados = aluguelService.findAlugueis(null, "123", null);
@@ -81,7 +78,6 @@ public class AluguelServiceTests {
         when(aluguelRepository.existsByCpfLocatorio("123")).thenReturn(true);
         when(aluguelRepository.findByCpfLocatorio("123")).thenReturn(alugueis);
         List<AluguelReturnDTO> alugueisRetornados = aluguelService.findAlugueis(null, null, "123");
->>>>>>> e60af07803e9362949858ed7c8730ab4a77d380c
 
         Assertions.assertEquals(1, alugueisRetornados.size());
     }
