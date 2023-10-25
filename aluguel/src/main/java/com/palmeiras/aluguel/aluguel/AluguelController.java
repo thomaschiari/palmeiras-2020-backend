@@ -26,7 +26,7 @@ public class AluguelController {
 
 
     @GetMapping
-    public List<AluguelSuccesDTO> findAlugueis(@RequestParam Status status, @RequestParam String cpfCorretor, @RequestParam String cpfLocatario) {
+    public List<AluguelSuccesDTO> findAlugueis(@RequestParam(required = false) Status status, @RequestParam(required = false) String cpfCorretor, @RequestParam(required = false) String cpfLocatario) {
         return aluguelService.findAlugueis(status, cpfCorretor, cpfLocatario);
     }
 
