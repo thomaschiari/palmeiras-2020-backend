@@ -31,20 +31,17 @@ public class AluguelService {
 
     public List<AluguelReturnDTO> findAlugueis(String aluguelStatus, String cpfCorretor, String cpfLocatario) {
         Status s = null;
-        aluguelStatus = aluguelStatus.toUpperCase();
-
         if(aluguelStatus != null){
+            aluguelStatus = aluguelStatus.toUpperCase();
             if(aluguelStatus.equals("ERRO") || aluguelStatus.equals("SUCESSO")){
                 s = Status.valueOf(aluguelStatus);
             } else {
                 throw new InvalidStatusException();
             }
         }
-        System.out.println("oi\n");
         // arrumar aqui pra chamar a api deles e ver se o cpf existe
         if (cpfCorretor != null && !aluguelRepository.existsByCpfCorretor(cpfCorretor)) throw new CpfCorretorDoesNotExistException();
         if (cpfLocatario != null && !aluguelRepository.existsByCpfLocatorio(cpfLocatario)) throw new CpfLocatarioDoesNotExistException();
-        System.out.println("oi2\n");
 
         List<Aluguel> alugueis;
 
@@ -56,7 +53,7 @@ public class AluguelService {
         else if (cpfCorretor == null) alugueis = aluguelRepository.findByStatusAndCpfLocatorio(s, cpfLocatario);
         else if (cpfLocatario == null) alugueis = aluguelRepository.findByStatusAndCpfCorretor(s, cpfCorretor);
         else alugueis = aluguelRepository.findByStatusAndCpfCorretorAndCpfLocatorio(s, cpfCorretor, cpfLocatario);
-        System.out.println("oi3\n");
+
         return alugueis.stream().map(alu -> AluguelSuccesDTO.convert(alu)).collect(Collectors.toList());
     }
 
