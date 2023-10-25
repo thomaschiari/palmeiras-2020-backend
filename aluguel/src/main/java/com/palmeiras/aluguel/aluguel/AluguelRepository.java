@@ -5,11 +5,14 @@ import java.util.List;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
-import com.palmeiras.aluguel.aluguel.Enum.Status;
+import com.palmeiras.aluguel.aluguel.enumerate.Status;
 
 @Repository
 public interface AluguelRepository extends MongoRepository<Aluguel, String> {
 
+    public boolean existsByCpfCorretor(String cpfCorretor);
+    public boolean existsByCpfLocatorio(String cpfLocatorio);
+    
     List<Aluguel> findByStatus(Status status);
     List<Aluguel> findByCpfCorretor(String cpfCorretor);
     List<Aluguel> findByCpfLocatorio(String cpfLocatorio);
