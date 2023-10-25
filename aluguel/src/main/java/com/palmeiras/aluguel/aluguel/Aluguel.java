@@ -18,8 +18,7 @@ import lombok.Setter;
 @Document("aluguel")
 public class Aluguel {
 
-    @Autowired
-    ModelMapper modelMapper;
+    private ModelMapper modelMapper = new ModelMapper();
 
     @Id
     private String id;
