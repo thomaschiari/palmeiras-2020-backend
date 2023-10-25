@@ -1,6 +1,7 @@
 package com.palmeiras.aluguel;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,12 +12,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.modelmapper.ModelMapper;
 
 import com.palmeiras.aluguel.aluguel.Aluguel;
 import com.palmeiras.aluguel.aluguel.AluguelRepository;
 import com.palmeiras.aluguel.aluguel.AluguelService;
-import com.palmeiras.aluguel.aluguel.dto.AluguelSuccesDTO;
+import com.palmeiras.aluguel.aluguel.dto.AluguelReturnDTO;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 
@@ -33,7 +33,7 @@ public class AluguelServiceTests {
     void findAlugueisTestEmpty() {
         Mockito.when(aluguelRepository.findAll()).thenReturn(new ArrayList<>());
 
-        List<AluguelSuccesDTO> alugueis = aluguelService.findAlugueis(null, null, null);
+        List<AluguelReturnDTO> alugueis = aluguelService.findAlugueis(null, null, null);
 
         Assertions.assertEquals(0, alugueis.size());
 
@@ -47,7 +47,7 @@ public class AluguelServiceTests {
         alugueis.add(a);
         Mockito.when(aluguelRepository.findAll()).thenReturn(alugueis);
 
-        List<AluguelSuccesDTO> alugueisRetornados = aluguelService.findAlugueis(null, null, null);
+        List<AluguelReturnDTO> alugueisRetornados = aluguelService.findAlugueis(null, null, null);
 
         Assertions.assertEquals(1, alugueisRetornados.size());
     }
@@ -55,12 +55,29 @@ public class AluguelServiceTests {
     @Test
     void findAlugueisByCpfCorretor() {
         List<Aluguel> alugueis = new ArrayList<>();
+
         Aluguel a = new Aluguel();
         a.setCpfCorretor("123");
         alugueis.add(a);
-        Mockito.when(aluguelRepository.findByCpfCorretor("123")).thenReturn(alugueis);
 
-        List<AluguelSuccesDTO> alugueisRetornados = aluguelService.findAlugueis(null, "123", null);
+        when(aluguelRepository.existsByCpfCorretor("123")).thenReturn(true);
+        when(aluguelRepository.findByCpfCorretor("123")).thenReturn(alugueis);
+        List<AluguelReturnDTO> alugueisRetornados = aluguelService.findAlugueis(null, "123", null);
+
+        Assertions.assertEquals(1, alugueisRetornados.size());
+    }
+
+    @Test
+    void findAlugueisByCpfLocatorio(){
+        List<Aluguel> alugueis = new ArrayList<>();
+
+        Aluguel a = new Aluguel();
+        a.setCpfLocatorio("123");
+        alugueis.add(a);
+
+        when(aluguelRepository.existsByCpfLocatorio("123")).thenReturn(true);
+        when(aluguelRepository.findByCpfLocatorio("123")).thenReturn(alugueis);
+        List<AluguelReturnDTO> alugueisRetornados = aluguelService.findAlugueis(null, null, "123");
 
         Assertions.assertEquals(1, alugueisRetornados.size());
     }
