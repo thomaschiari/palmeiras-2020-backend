@@ -10,15 +10,15 @@ import com.palmeiras.aluguel.aluguel.enumerate.Status;
 @Repository
 public interface AluguelRepository extends MongoRepository<Aluguel, String> {
 
-    public boolean existsByCpfCorretor(String cpfCorretor);
-    public boolean existsByCpfLocatorio(String cpfLocatorio);
+    boolean existsByCpfCorretor(String cpfCorretor);
+    boolean existsByCpfLocatario(String cpfLocatario);
     
     List<Aluguel> findByStatus(Status status);
     List<Aluguel> findByCpfCorretor(String cpfCorretor);
-    List<Aluguel> findByCpfLocatorio(String cpfLocatorio);
+    List<Aluguel> findByCpfLocatario(String cpfLocatario);
     List<Aluguel> findByStatusAndCpfCorretor(Status status, String cpfCorretor);
-    List<Aluguel> findByStatusAndCpfLocatorio(Status status, String cpfLocatorio);
-    List<Aluguel> findByCpfCorretorAndCpfLocatorio(String cpfCorretor, String cpfLocatorio);
-    List<Aluguel> findByStatusAndCpfCorretorAndCpfLocatorio(Status status, String cpfCorretor, String cpfLocatorio);
+    List<Aluguel> findByStatusAndCpfLocatario(Status status, String cpfLocatario);
+    List<Aluguel> findByCpfCorretorAndCpfLocatario(String cpfCorretor, String cpfLocatario);
+    List<Aluguel> findByStatusAndCpfCorretorAndCpfLocatario(Status status, String cpfCorretor, String cpfLocatario);
     
 }

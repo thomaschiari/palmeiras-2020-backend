@@ -1,7 +1,6 @@
 package com.palmeiras.aluguel.aluguel.dto;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import com.palmeiras.aluguel.aluguel.Aluguel;
 
@@ -12,8 +11,7 @@ import lombok.Setter;
 @Setter
 public class AluguelSaveDTO {
     
-    @Autowired
-    private static ModelMapper modelMapper;
+    private static ModelMapper modelMapper = new ModelMapper();
 
     private String cpfCorretor;
     private String cpfLocatario;

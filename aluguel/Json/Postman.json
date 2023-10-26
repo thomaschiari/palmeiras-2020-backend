@@ -1,0 +1,106 @@
+{
+	"info": {
+		"_postman_id": "93c36150-b762-4f78-bb5a-58fd584a9a7e",
+		"name": "Crias",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "27709173"
+	},
+	"item": [
+		{
+			"name": "Find Aluguel",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "token",
+						"value": "R7b6fEekFW87tUbBCWjB",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8080/aluguel?cpfCorretor=1&cpfLocatario=1&status=Perts",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"aluguel"
+					],
+					"query": [
+						{
+							"key": "cpfCorretor",
+							"value": "1"
+						},
+						{
+							"key": "cpfLocatario",
+							"value": "1"
+						},
+						{
+							"key": "status",
+							"value": "Perts"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login Zambas",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://54.71.150.144:8082/token/R7b6fEekFW87tUbBCWjB",
+					"protocol": "http",
+					"host": [
+						"54",
+						"71",
+						"150",
+						"144"
+					],
+					"port": "8082",
+					"path": [
+						"token",
+						"R7b6fEekFW87tUbBCWjB"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Post Criar Aluguel",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "token",
+						"value": "R7b6fEekFW87tUbBCWjB",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"cpfCorretor\":\"123\",\n    \"cpfLocatario\":\"123\",\n    \"idImovel\":\"123\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/aluguel",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"aluguel"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
