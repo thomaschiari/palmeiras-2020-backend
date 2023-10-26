@@ -25,8 +25,8 @@ public class AluguelController {
 
 
     @GetMapping
-    public List<AluguelReturnDTO> findAlugueis(@RequestParam(required = false) String status, @RequestParam(required = false) String cpfCorretor, @RequestParam(required = false) String cpfLocatario) {
-        return aluguelService.findAlugueis(status, cpfCorretor, cpfLocatario);
+    public List<AluguelReturnDTO> findAlugueis(@RequestParam(required = false) String status, @RequestParam(required = false) String cpfCorretor, @RequestParam(required = false) String cpfLocatario, @RequestHeader(name="token") String token) {
+        return aluguelService.findAlugueis(status, cpfCorretor, cpfLocatario, token);
     }
 
     @PostMapping

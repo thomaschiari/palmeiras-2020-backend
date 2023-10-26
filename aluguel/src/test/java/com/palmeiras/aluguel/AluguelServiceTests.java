@@ -35,7 +35,7 @@ public class AluguelServiceTests {
     @Test
     void findAlugueisTestEmpty() {
         Mockito.when(aluguelRepository.findAll()).thenReturn(new ArrayList<>());
-        List<AluguelReturnDTO> alugueis = aluguelService.findAlugueis(null, null, null);
+        List<AluguelReturnDTO> alugueis = aluguelService.findAlugueis(null, null, null, null);
         Assertions.assertEquals(0, alugueis.size());
     }
 
@@ -47,7 +47,7 @@ public class AluguelServiceTests {
         alugueis.add(a);
         Mockito.when(aluguelRepository.findAll()).thenReturn(alugueis);
 
-        List<AluguelReturnDTO> alugueisRetornados = aluguelService.findAlugueis(null, null, null);
+        List<AluguelReturnDTO> alugueisRetornados = aluguelService.findAlugueis(null, null, null, null);
         Assertions.assertEquals(1, alugueisRetornados.size());
     }
 
@@ -64,7 +64,7 @@ public class AluguelServiceTests {
         Mockito.when(aluguelRepository.existsByCpfLocatario("3030")).thenReturn(true);
 
         Mockito.when(aluguelRepository.findByStatusAndCpfCorretorAndCpfLocatario(Status.SUCESSO, "1230","3030")).thenReturn(alugueis);
-        List<AluguelReturnDTO> alugueisRetornados = aluguelService.findAlugueis("sucesso", "1230","3030");
+        List<AluguelReturnDTO> alugueisRetornados = aluguelService.findAlugueis("sucesso", "1230","3030", null);
         Assertions.assertEquals(1, alugueisRetornados.size());
     }
 
@@ -78,7 +78,7 @@ public class AluguelServiceTests {
 
         Mockito.when(aluguelRepository.existsByCpfCorretor("123")).thenReturn(true);
         Mockito.when(aluguelRepository.findByCpfCorretor("123")).thenReturn(alugueis);
-        List<AluguelReturnDTO> alugueisRetornados = aluguelService.findAlugueis(null, "123", null);
+        List<AluguelReturnDTO> alugueisRetornados = aluguelService.findAlugueis(null, "123", null, null);
 
         Assertions.assertEquals(1, alugueisRetornados.size());
     }
@@ -93,7 +93,7 @@ public class AluguelServiceTests {
 
         Mockito.when(aluguelRepository.existsByCpfLocatario("123")).thenReturn(true);
         Mockito.when(aluguelRepository.findByCpfLocatario("123")).thenReturn(alugueis);
-        List<AluguelReturnDTO> alugueisRetornados = aluguelService.findAlugueis(null, null, "123");
+        List<AluguelReturnDTO> alugueisRetornados = aluguelService.findAlugueis(null, null, "123", null);
 
         Assertions.assertEquals(1, alugueisRetornados.size());
     }
@@ -101,7 +101,7 @@ public class AluguelServiceTests {
     @Test 
     void invalidAluguelStatus(){
         assertThrows(InvalidStatusException.class, () -> {
-            aluguelService.findAlugueis("StatusInvalido", null, null);
+            aluguelService.findAlugueis("StatusInvalido", null, null, null);
         });
     }
 
@@ -109,7 +109,7 @@ public class AluguelServiceTests {
     void testCpfCorretorDoesNotExistException() {
         Mockito.when(aluguelRepository.existsByCpfCorretor("123")).thenReturn(false);
         assertThrows(CpfCorretorDoesNotExistException.class, () -> {
-            aluguelService.findAlugueis(null, "123", null);
+            aluguelService.findAlugueis(null, "123", null, null);
         });
     }
 
@@ -117,7 +117,7 @@ public class AluguelServiceTests {
     void testCpfLocatarioDoesNotExistException() {
         Mockito.when(aluguelRepository.existsByCpfLocatario("123")).thenReturn(false);
         assertThrows(CpfLocatarioDoesNotExistException.class, () -> {
-            aluguelService.findAlugueis(null, null, "123");
+            aluguelService.findAlugueis(null, null, "123", null);
         });
     }
 }
