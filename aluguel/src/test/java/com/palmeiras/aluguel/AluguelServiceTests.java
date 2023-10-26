@@ -57,13 +57,13 @@ public class AluguelServiceTests {
         Aluguel a = new Aluguel();
 
         a.setCpfCorretor("1230");
-        a.setCpfLocatorio("3030");
+        a.setCpfLocatario("3030");
         alugueis.add(a);
 
         Mockito.when(aluguelRepository.existsByCpfCorretor("1230")).thenReturn(true);
-        Mockito.when(aluguelRepository.existsByCpfLocatorio("3030")).thenReturn(true);
+        Mockito.when(aluguelRepository.existsByCpfLocatario("3030")).thenReturn(true);
 
-        Mockito.when(aluguelRepository.findByStatusAndCpfCorretorAndCpfLocatorio(Status.SUCESSO, "1230","3030")).thenReturn(alugueis);
+        Mockito.when(aluguelRepository.findByStatusAndCpfCorretorAndCpfLocatario(Status.SUCESSO, "1230","3030")).thenReturn(alugueis);
         List<AluguelReturnDTO> alugueisRetornados = aluguelService.findAlugueis("sucesso", "1230","3030");
         Assertions.assertEquals(1, alugueisRetornados.size());
     }
@@ -84,15 +84,15 @@ public class AluguelServiceTests {
     }
 
     @Test
-    void findAlugueisByCpfLocatorio(){
+    void findAlugueisByCpfLocatario(){
         List<Aluguel> alugueis = new ArrayList<>();
 
         Aluguel a = new Aluguel();
-        a.setCpfLocatorio("123");
+        a.setCpfLocatario("123");
         alugueis.add(a);
 
-        Mockito.when(aluguelRepository.existsByCpfLocatorio("123")).thenReturn(true);
-        Mockito.when(aluguelRepository.findByCpfLocatorio("123")).thenReturn(alugueis);
+        Mockito.when(aluguelRepository.existsByCpfLocatario("123")).thenReturn(true);
+        Mockito.when(aluguelRepository.findByCpfLocatario("123")).thenReturn(alugueis);
         List<AluguelReturnDTO> alugueisRetornados = aluguelService.findAlugueis(null, null, "123");
 
         Assertions.assertEquals(1, alugueisRetornados.size());
@@ -115,7 +115,7 @@ public class AluguelServiceTests {
 
     @Test
     void testCpfLocatarioDoesNotExistException() {
-        Mockito.when(aluguelRepository.existsByCpfLocatorio("123")).thenReturn(false);
+        Mockito.when(aluguelRepository.existsByCpfLocatario("123")).thenReturn(false);
         assertThrows(CpfLocatarioDoesNotExistException.class, () -> {
             aluguelService.findAlugueis(null, null, "123");
         });

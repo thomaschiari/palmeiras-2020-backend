@@ -15,7 +15,7 @@ public class AluguelSuccesDTO extends AluguelReturnDTO{
     private String identifier;
     private String status;
     private String cpfCorretor;
-    private String cpfLocatorio;
+    private String cpfLocatario;
     private String idImovel;
     private String dataAluguel;
 

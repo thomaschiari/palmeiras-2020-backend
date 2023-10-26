@@ -12,6 +12,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import com.palmeiras.aluguel.aluguel.dto.AluguelErroReturnDTO;
@@ -41,19 +42,21 @@ public class AluguelService {
         }
         // arrumar aqui pra chamar a api deles e ver se o cpf existe
         if (cpfCorretor != null && !aluguelRepository.existsByCpfCorretor(cpfCorretor)) throw new CpfCorretorDoesNotExistException();
-        if (cpfLocatario != null && !aluguelRepository.existsByCpfLocatorio(cpfLocatario)) throw new CpfLocatarioDoesNotExistException();
+        if (cpfLocatario != null && !aluguelRepository.existsByCpfLocatario(cpfLocatario)) throw new CpfLocatarioDoesNotExistException();
 
         List<Aluguel> alugueis;
 
         if (s == null && cpfCorretor == null && cpfLocatario == null) alugueis = aluguelRepository.findAll();
         else if (cpfCorretor == null && cpfLocatario == null) alugueis = aluguelRepository.findByStatus(s);
-        else if (s == null && cpfCorretor == null) alugueis = aluguelRepository.findByCpfLocatorio(cpfLocatario);
+        else if (s == null && cpfCorretor == null) alugueis = aluguelRepository.findByCpfLocatario(cpfLocatario);
         else if (s == null && cpfLocatario == null) alugueis = aluguelRepository.findByCpfCorretor(cpfCorretor);
-        else if (s == null) alugueis = aluguelRepository.findByCpfCorretorAndCpfLocatorio(cpfCorretor, cpfLocatario);
-        else if (cpfCorretor == null) alugueis = aluguelRepository.findByStatusAndCpfLocatorio(s, cpfLocatario);
+        else if (s == null) alugueis = aluguelRepository.findByCpfCorretorAndCpfLocatario(cpfCorretor, cpfLocatario);
+        else if (cpfCorretor == null) alugueis = aluguelRepository.findByStatusAndCpfLocatario(s, cpfLocatario);
         else if (cpfLocatario == null) alugueis = aluguelRepository.findByStatusAndCpfCorretor(s, cpfCorretor);
-        else alugueis = aluguelRepository.findByStatusAndCpfCorretorAndCpfLocatorio(s, cpfCorretor, cpfLocatario);
+        else alugueis = aluguelRepository.findByStatusAndCpfCorretorAndCpfLocatario(s, cpfCorretor, cpfLocatario);
 
+
+        
         return alugueis.stream().map(alu -> AluguelSuccesDTO.convert(alu)).collect(Collectors.toList());
     }
 
@@ -65,7 +68,6 @@ public class AluguelService {
             mudar o status do imóvel. Se tudo der certo ela deve salvar o aluguel com o status SUCESSO.
             Se alguma das validações derem errado, ela deve salvar o aluguel com status ERRO.
         */
-        System.out.println("oi aaa\n");
         String msg = "";
         Boolean erro = false;
         ResponseEntity<Void> response;
@@ -74,41 +76,46 @@ public class AluguelService {
         HttpHeaders headers = new HttpHeaders();
         headers.set("token", token);
         HttpEntity<String> entity = new HttpEntity<>(headers);
-        response = restTemplate.getForEntity("http://localhost:8081/cliente/recupera/" + aluguelDTO.getCpfLocatario(), null, entity);
-        if(!response.getStatusCode().is2xxSuccessful()){
-            msg += "Cliente não encontrado.\n";
+        try {
+            response = restTemplate.getForEntity("http://localhost:8081/cliente/recupera/" + aluguelDTO.getCpfLocatario(), null, entity);
+        } catch (Exception e) {
+            msg += "Cliente não encontrado. ";
             erro = true;
+            response = null;
         }
-
-        System.out.println("oi aaa2\n");
 
         restTemplate = new RestTemplate();
-        response = restTemplate.getForEntity("http://localhost:8081/corretor/recupera/" + aluguelDTO.getCpfCorretor(), null, entity);
-        if(!response.getStatusCode().is2xxSuccessful()){
-            msg += "Corretor não encontrado.\n";
+        try {
+            response = restTemplate.getForEntity("http://localhost:8081/corretor/recupera/" + aluguelDTO.getCpfCorretor(), null, entity);
+        } catch (Exception e) {
+            msg += "Corretor não encontrado. ";
             erro = true;
+            response = null;
         }
-
-        System.out.println("oi aaa3\n");
         
         Aluguel aluguel = new Aluguel();
-        
-        aluguel.convertSaveDTO(aluguelDTO);
+        aluguel.setCpfCorretor(aluguelDTO.getCpfCorretor());
+        aluguel.setCpfLocatario(aluguelDTO.getCpfLocatario());
+        aluguel.setIdImovel(aluguelDTO.getIdImovel());
         aluguel.setDataAluguel(LocalDateTime.now());
         aluguel.setIdentifier(UUID.randomUUID().toString());
 
-        System.out.println("oi aaa4\n");
-
         if(!erro){
             restTemplate = new RestTemplate();
-            response = restTemplate.exchange("http://localhost:8081/imovel/aluga/" + aluguelDTO.getIdImovel(), HttpMethod.PUT, entity, Void.class);
+            try {
+                response = restTemplate.exchange("http://localhost:8081/imovel/aluga/" + aluguelDTO.getIdImovel(), HttpMethod.PUT, entity, Void.class);
+            } catch (HttpClientErrorException e) {
+                response = new ResponseEntity<>(e.getStatusCode());
+                erro = true;
+            }
+
             if(response.getStatusCode().is2xxSuccessful()){
                 aluguel.setStatus(Status.SUCESSO);
             } else {
                 if (response.getStatusCode() == HttpStatus.NOT_FOUND) {
-                    msg += "Imóvel não encontrado.\n";
+                    msg += "Imóvel não encontrado. ";
                 } else if (response.getStatusCode() == HttpStatus.BAD_REQUEST) {
-                    msg += "Imóvel já alugado.\n";
+                    msg += "Imóvel já alugado. ";
                 }
                 aluguel.setStatus(Status.ERRO);
             }
@@ -116,7 +123,7 @@ public class AluguelService {
             aluguel.setStatus(Status.ERRO);
         }
 
-        System.out.println("oi aaa5\n");
+        System.out.println(aluguel.getStatus());
 
         // Valida se o cliente existe (Listagem de clientes:), se n existir erro = True
 
@@ -130,9 +137,7 @@ public class AluguelService {
             ou vendido deve retornar um erro 400.
             */
 
-        System.out.println("oi antes\n");
         aluguelRepository.save(aluguel);
-        System.out.println("oi depois\n");
 
         /* 
         Duvidas da rota:
@@ -140,8 +145,9 @@ public class AluguelService {
         se um imóvel for salvo em um aluguél com erro ele continua disponivel ou não?
         se não existir o corretor ou cliente deve retornar erro ou salva aluguel com status erro?
         */
-
+        System.out.println("ERRO: " + erro + "\n");
         if (erro) {
+            System.out.println("Erro\n");
             AluguelErroReturnDTO erroDTO = new AluguelErroReturnDTO();
             erroDTO.setAluguel(AluguelSuccesDTO.convert(aluguel));
             erroDTO.setMsgErro(msg);
@@ -150,4 +156,5 @@ public class AluguelService {
 
         return AluguelSuccesDTO.convert(aluguel);
     }
+
 }

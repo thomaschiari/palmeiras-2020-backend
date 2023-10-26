@@ -18,18 +18,12 @@ import lombok.Setter;
 @Document("aluguel")
 public class Aluguel {
 
-    private ModelMapper modelMapper = new ModelMapper();
-
     @Id
     private String id;
     private String identifier;
     private Status status;
     private String cpfCorretor;
-    private String cpfLocatorio;
+    private String cpfLocatario;
     private String idImovel;
     private LocalDateTime dataAluguel;
-    
-    public Aluguel convertSaveDTO(AluguelSaveDTO dto){
-        return modelMapper.map(dto, Aluguel.class);
-    }
 }
