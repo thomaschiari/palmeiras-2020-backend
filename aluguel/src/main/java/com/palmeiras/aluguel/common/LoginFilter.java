@@ -30,7 +30,10 @@ public class LoginFilter implements Filter {
 
         RestTemplate restTemplate = new RestTemplate();
 
-        
+        if (uri.equals("/v3/api-docs") || uri.contains("swagger")) {
+            chain.doFilter(request, response);
+            return;
+        }
 
         try {
             ResponseEntity<TokenDTO> responseEntity = restTemplate.getForEntity("http://54.71.150.144:8082/token/" + token, TokenDTO.class);
