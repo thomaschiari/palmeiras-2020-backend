@@ -40,7 +40,7 @@ public class AluguelService {
                 throw new InvalidStatusException();
             }
         }
-        
+
         if (cpfCorretor != null || cpfLocatario != null) {
             ResponseEntity<Void> response;
             RestTemplate restTemplate = new RestTemplate();
@@ -77,7 +77,6 @@ public class AluguelService {
         else if (cpfCorretor == null) alugueis = aluguelRepository.findByStatusAndCpfLocatario(s, cpfLocatario);
         else if (cpfLocatario == null) alugueis = aluguelRepository.findByStatusAndCpfCorretor(s, cpfCorretor);
         else alugueis = aluguelRepository.findByStatusAndCpfCorretorAndCpfLocatario(s, cpfCorretor, cpfLocatario);
-
 
         
         return alugueis.stream().map(alu -> AluguelSuccesDTO.convert(alu)).collect(Collectors.toList());
@@ -182,5 +181,31 @@ public class AluguelService {
 
         return AluguelSuccesDTO.convert(aluguel);
     }
+
+    public void deleteAluguel(String identifier) {
+        /* 
+            Essa rota deve receber o identificador de um aluguel e deve deletar o aluguel. Ela deve
+            chamar a rota que aluga/vende para mudar o status do imóvel para disponível.
+        */
+        Aluguel aluguel = aluguelRepository.findByIdentifier(identifier);
+        if (aluguel == null) throw new RuntimeException("Aluguel não encontrado.");
+        aluguelRepository.delete(aluguel);
+    }
+
+    public AluguelReturnDTO updateAluguel(String identifier, AluguelSaveDTO aluguelDTO) {
+        /* 
+            Essa rota deve receber o identificador de um aluguel e deve atualizar o aluguel. Ela deve
+            chamar a rota que aluga/vende para mudar o status do imóvel para disponível.
+        */
+        Aluguel aluguel = aluguelRepository.findByIdentifier(identifier);
+        if (aluguel == null) throw new RuntimeException("Aluguel não encontrado.");
+        aluguel.setCpfCorretor(aluguelDTO.getCpfCorretor());
+        aluguel.setCpfLocatario(aluguelDTO.getCpfLocatario());
+        aluguel.setIdImovel(aluguelDTO.getIdImovel());
+        aluguelRepository.save(aluguel);
+
+        return AluguelSuccesDTO.convert(aluguel);
+    }
+    
 
 }
