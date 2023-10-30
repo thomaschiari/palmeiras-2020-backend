@@ -4,8 +4,10 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,4 +37,14 @@ public class AluguelController {
         return aluguelService.alugarImovel(aluguelDTO, token);
     }    
     
+    @DeleteMapping
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteAluguel(@RequestParam(required = true) String identifier) {
+        aluguelService.deleteAluguel(identifier);
+    }
+
+    @PutMapping("/update")
+    public AluguelReturnDTO updateAluguel(@RequestParam(required = true) String identifier, @RequestBody AluguelSaveDTO aluguelDTO) {
+        return aluguelService.updateAluguel(identifier, aluguelDTO);
+    }
 }
