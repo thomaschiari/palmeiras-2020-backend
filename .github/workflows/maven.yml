@@ -3,6 +3,10 @@ name: Java CI with Maven
 on:
     push:
         branches: [ "main" ]
+
+defaults:
+  run:
+    working-directory: ./aluguel
     
 jobs:
     build:
@@ -30,7 +34,7 @@ jobs:
               uses: docker/build-push-action@v5
               with:
                 context: .
-                file: ./Dockerfile
+                file: ./aluguel/Dockerfile
                 push: true
                 tags: grindcrias/aluguelback:${{ github.sha }}
         
