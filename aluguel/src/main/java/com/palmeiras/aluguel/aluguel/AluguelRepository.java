@@ -20,5 +20,6 @@ public interface AluguelRepository extends MongoRepository<Aluguel, String> {
     List<Aluguel> findByStatusAndCpfLocatario(Status status, String cpfLocatario);
     List<Aluguel> findByCpfCorretorAndCpfLocatario(String cpfCorretor, String cpfLocatario);
     List<Aluguel> findByStatusAndCpfCorretorAndCpfLocatario(Status status, String cpfCorretor, String cpfLocatario);
+    Aluguel findByIdentifier(String identifier);
     
 }
