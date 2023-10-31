@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import com.palmeiras.aluguel.aluguel.exception.AluguelDoesNotExistException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -51,6 +52,7 @@ public class AluguelService {
             if (cpfLocatario != null) {
                 try {
                     response = restTemplate.getForEntity("http://localhost:8081/cliente/recupera/" + cpfLocatario, null, entity);
+                    if (response.getStatusCode() == HttpStatus.NOT_FOUND) throw new CpfLocatarioDoesNotExistException();
                 } catch (Exception e) {
                     throw new CpfLocatarioDoesNotExistException();
                 }
@@ -60,6 +62,7 @@ public class AluguelService {
             if (cpfCorretor != null) {
                 try {
                     response = restTemplate.getForEntity("http://localhost:8081/corretor/recupera/" + cpfCorretor, null, entity);
+                    if (response.getStatusCode() == HttpStatus.NOT_FOUND) throw new CpfCorretorDoesNotExistException();
                 } catch (Exception e) {
                     throw new CpfCorretorDoesNotExistException();
                 }
@@ -188,7 +191,7 @@ public class AluguelService {
             chamar a rota que aluga/vende para mudar o status do imóvel para disponível.
         */
         Aluguel aluguel = aluguelRepository.findByIdentifier(identifier);
-        if (aluguel == null) throw new RuntimeException("Aluguel não encontrado.");
+        if (aluguel == null) throw new AluguelDoesNotExistException();
         aluguelRepository.delete(aluguel);
     }
 
@@ -198,7 +201,7 @@ public class AluguelService {
             chamar a rota que aluga/vende para mudar o status do imóvel para disponível.
         */
         Aluguel aluguel = aluguelRepository.findByIdentifier(identifier);
-        if (aluguel == null) throw new RuntimeException("Aluguel não encontrado.");
+        if (aluguel == null) throw new AluguelDoesNotExistException();
         aluguel.setCpfCorretor(aluguelDTO.getCpfCorretor());
         aluguel.setCpfLocatario(aluguelDTO.getCpfLocatario());
         aluguel.setIdImovel(aluguelDTO.getIdImovel());
