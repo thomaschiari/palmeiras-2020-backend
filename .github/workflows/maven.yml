@@ -48,5 +48,5 @@ jobs:
                 script: |
                   docker stop aluguelback
                   docker rm --force aluguelback
-                  docker run -e MONGO_PASSWORD=${{ secrets.MONGO_PASSWORD }} -d -p 8080:8080 --name alguelback grindcrias/aluguelback:${{ github.sha }}
+                  docker run -e MONGO_PASSWORD=${{ secrets.MONGO_PASSWORD }} -d -p 8080:8080 --name aluguelback grindcrias/aluguelback:${{ github.sha }}
                    
