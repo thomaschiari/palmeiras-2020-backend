@@ -51,7 +51,7 @@ public class AluguelService {
 
             if (cpfLocatario != null) {
                 try {
-                    response = restTemplate.getForEntity("http://34.210.87.17:8080/clientes/exists/" + cpfLocatario, null, entity);
+                    response = restTemplate.getForEntity("http://34.210.87.17:8080/cliente/exists/" + cpfLocatario, null, entity);
                 } catch (Exception e) {
                     throw new CpfLocatarioDoesNotExistException();
                 }
