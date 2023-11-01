@@ -45,23 +45,24 @@ public class AluguelService {
         if (cpfCorretor != null || cpfLocatario != null) {
             ResponseEntity<Void> response;
             RestTemplate restTemplate = new RestTemplate();
+
             HttpHeaders headers = new HttpHeaders();
-            headers.set("token", token);
+            headers.add("token", token);
             HttpEntity<String> entity = new HttpEntity<>(headers);
 
-            if (cpfLocatario != null) {
+            if(cpfLocatario != null){
                 try {
-                    response = restTemplate.getForEntity("http://34.210.87.17:8080/cliente/exists/" + cpfLocatario, null, entity);
-                } catch (Exception e) {
+                    response = restTemplate.exchange("http://34.210.87.17:8080/cliente/exists/" + cpfLocatario, HttpMethod.GET, entity, Void.class);
+                } catch (Exception e){
                     throw new CpfLocatarioDoesNotExistException();
                 }
             }
 
             
-            if (cpfCorretor != null) {
+            if(cpfCorretor != null){
                 try {
-                    response = restTemplate.getForEntity("http://35.87.155.27:8080/corretor/" + cpfCorretor, null, entity);
-                } catch (Exception e) {
+                    response = restTemplate.exchange("http://35.87.155.27:8080/corretor/" + cpfCorretor, HttpMethod.GET, entity, Void.class);
+                } catch (Exception e){
                     throw new CpfCorretorDoesNotExistException();
                 }
             }
@@ -100,7 +101,7 @@ public class AluguelService {
         HttpEntity<String> entity = new HttpEntity<>(headers);
         
         try {
-            response = restTemplate.getForEntity("http://34.210.87.17:8080/clientes/exists/" + aluguelDTO.getCpfLocatario(), null, entity);
+            response = restTemplate.exchange("http://34.210.87.17:8080/cliente/exists/" + aluguelDTO.getCpfLocatario(), HttpMethod.GET, entity, Void.class);
         } catch (Exception e) {
             erro = true;
             erroCliente = true;
@@ -109,7 +110,7 @@ public class AluguelService {
 
         restTemplate = new RestTemplate();
         try {
-            response = restTemplate.getForEntity("http://35.87.155.27:8080/corretor/" + aluguelDTO.getCpfCorretor(), null, entity);
+            response = restTemplate.exchange("http://35.87.155.27:8080/corretor/" + aluguelDTO.getCpfCorretor(), HttpMethod.GET, entity, Void.class);
         } catch (Exception e) {
             erro = true;
             erroCorretor = true;
