@@ -51,8 +51,7 @@ public class AluguelService {
 
             if (cpfLocatario != null) {
                 try {
-                    response = restTemplate.getForEntity("http://localhost:8081/cliente/recupera/" + cpfLocatario, null, entity);
-                    if (response.getStatusCode() == HttpStatus.NOT_FOUND) throw new CpfLocatarioDoesNotExistException();
+                    response = restTemplate.getForEntity("http://34.210.87.17:8080/clientes/exists/" + cpfLocatario, null, entity);
                 } catch (Exception e) {
                     throw new CpfLocatarioDoesNotExistException();
                 }
@@ -61,8 +60,7 @@ public class AluguelService {
             
             if (cpfCorretor != null) {
                 try {
-                    response = restTemplate.getForEntity("http://localhost:8081/corretor/recupera/" + cpfCorretor, null, entity);
-                    if (response.getStatusCode() == HttpStatus.NOT_FOUND) throw new CpfCorretorDoesNotExistException();
+                    response = restTemplate.getForEntity("http://35.87.155.27:8080/corretor/" + cpfCorretor, null, entity);
                 } catch (Exception e) {
                     throw new CpfCorretorDoesNotExistException();
                 }
@@ -102,7 +100,7 @@ public class AluguelService {
         HttpEntity<String> entity = new HttpEntity<>(headers);
         
         try {
-            response = restTemplate.getForEntity("http://localhost:8081/cliente/recupera/" + aluguelDTO.getCpfLocatario(), null, entity);
+            response = restTemplate.getForEntity("http://34.210.87.17:8080/clientes/exists/" + aluguelDTO.getCpfLocatario(), null, entity);
         } catch (Exception e) {
             erro = true;
             erroCliente = true;
@@ -111,7 +109,7 @@ public class AluguelService {
 
         restTemplate = new RestTemplate();
         try {
-            response = restTemplate.getForEntity("http://localhost:8081/corretor/recupera/" + aluguelDTO.getCpfCorretor(), null, entity);
+            response = restTemplate.getForEntity("http://35.87.155.27:8080/corretor/" + aluguelDTO.getCpfCorretor(), null, entity);
         } catch (Exception e) {
             erro = true;
             erroCorretor = true;
@@ -128,7 +126,7 @@ public class AluguelService {
         if(!erro){
             restTemplate = new RestTemplate();
             try {
-                response = restTemplate.exchange("http://localhost:8081/imovel/aluga/" + aluguelDTO.getIdImovel(), HttpMethod.PUT, entity, Void.class);
+                response = restTemplate.exchange("http://3.16.37.117:8080/imovel/transaction/" + aluguelDTO.getIdImovel(), HttpMethod.PUT, entity, Void.class);
             } catch (HttpClientErrorException e) {
                 response = new ResponseEntity<>(e.getStatusCode());
                 erro = true;
