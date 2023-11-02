@@ -46,6 +46,10 @@ public class LoginFilter implements Filter {
             return;
         }
 
+        if (req.getMethod().equals("OPTIONS")) {
+            chain.doFilter(request, response);
+        }
+
         try {
             ResponseEntity<TokenDTO> responseEntity = restTemplate.getForEntity("http://54.71.150.144:8082/token/" + token, TokenDTO.class);
             if (responseEntity.getStatusCode().is2xxSuccessful()) {
