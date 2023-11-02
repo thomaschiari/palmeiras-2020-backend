@@ -110,7 +110,7 @@ public class AluguelService {
 
         restTemplate = new RestTemplate();
         try {
-            response = restTemplate.exchange("http://35.87.155.27:8080/corretor/" + aluguelDTO.getCpfCorretor(), HttpMethod.GET, entity, Void.class);
+            response = restTemplate.exchange("http://35.87.155.27:8080/corretor/cpf/" + aluguelDTO.getCpfCorretor(), HttpMethod.GET, entity, Void.class);
         } catch (Exception e) {
             erro = true;
             erroCorretor = true;
