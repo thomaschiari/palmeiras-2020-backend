@@ -19,6 +19,7 @@ import org.springframework.web.client.RestTemplate;
 import com.palmeiras.aluguel.aluguel.dto.AluguelErroReturnDTO;
 import com.palmeiras.aluguel.aluguel.dto.AluguelReturnDTO;
 import com.palmeiras.aluguel.aluguel.dto.AluguelSuccesDTO;
+import com.palmeiras.aluguel.aluguel.dto.ImovelTransactionDTO;
 import com.palmeiras.aluguel.aluguel.dto.AluguelSaveDTO;
 import com.palmeiras.aluguel.aluguel.enumerate.Status;
 import com.palmeiras.aluguel.aluguel.exception.CpfCorretorDoesNotExistException;
@@ -45,23 +46,24 @@ public class AluguelService {
         if (cpfCorretor != null || cpfLocatario != null) {
             ResponseEntity<Void> response;
             RestTemplate restTemplate = new RestTemplate();
+
             HttpHeaders headers = new HttpHeaders();
-            headers.set("token", token);
+            headers.add("token", token);
             HttpEntity<String> entity = new HttpEntity<>(headers);
 
-            if (cpfLocatario != null) {
+            if(cpfLocatario != null){
                 try {
-                    response = restTemplate.getForEntity("http://34.210.87.17:8080/cliente/exists/" + cpfLocatario, null, entity);
-                } catch (Exception e) {
+                    response = restTemplate.exchange("http://34.210.87.17:8080/cliente/exists/" + cpfLocatario, HttpMethod.GET, entity, Void.class);
+                } catch (Exception e){
                     throw new CpfLocatarioDoesNotExistException();
                 }
             }
 
             
-            if (cpfCorretor != null) {
+            if(cpfCorretor != null){
                 try {
-                    response = restTemplate.getForEntity("http://35.87.155.27:8080/corretor/" + cpfCorretor, null, entity);
-                } catch (Exception e) {
+                    response = restTemplate.exchange("http://35.87.155.27:8080/corretor/cpf/" + cpfCorretor, HttpMethod.GET, entity, Void.class);
+                } catch (Exception e){
                     throw new CpfCorretorDoesNotExistException();
                 }
             }
@@ -100,7 +102,7 @@ public class AluguelService {
         HttpEntity<String> entity = new HttpEntity<>(headers);
         
         try {
-            response = restTemplate.getForEntity("http://34.210.87.17:8080/clientes/exists/" + aluguelDTO.getCpfLocatario(), null, entity);
+            response = restTemplate.exchange("http://34.210.87.17:8080/cliente/exists/" + aluguelDTO.getCpfLocatario(), HttpMethod.GET, entity, Void.class);
         } catch (Exception e) {
             erro = true;
             erroCliente = true;
@@ -109,7 +111,7 @@ public class AluguelService {
 
         restTemplate = new RestTemplate();
         try {
-            response = restTemplate.getForEntity("http://35.87.155.27:8080/corretor/" + aluguelDTO.getCpfCorretor(), null, entity);
+            response = restTemplate.exchange("http://35.87.155.27:8080/corretor/cpf/" + aluguelDTO.getCpfCorretor(), HttpMethod.GET, entity, Void.class);
         } catch (Exception e) {
             erro = true;
             erroCorretor = true;
@@ -123,10 +125,13 @@ public class AluguelService {
         aluguel.setDataAluguel(LocalDateTime.now());
         aluguel.setIdentifier(UUID.randomUUID().toString());
 
+        ImovelTransactionDTO body = new ImovelTransactionDTO();
+        HttpEntity<ImovelTransactionDTO> entityBody = new HttpEntity<>(body, headers);
+
         if(!erro){
             restTemplate = new RestTemplate();
             try {
-                response = restTemplate.exchange("http://3.16.37.117:8080/imovel/transaction/" + aluguelDTO.getIdImovel(), HttpMethod.PUT, entity, Void.class);
+                response = restTemplate.exchange("http://3.134.139.76:8080/imovel/transaction/" + aluguelDTO.getIdImovel(), HttpMethod.POST, entityBody, Void.class);
             } catch (HttpClientErrorException e) {
                 response = new ResponseEntity<>(e.getStatusCode());
                 erro = true;
@@ -141,38 +146,30 @@ public class AluguelService {
                     erroImovelAlugado = true;
                 }
                 aluguel.setStatus(Status.ERRO);
-
             }
         } else {
             aluguel.setStatus(Status.ERRO);
         }
 
         // Valida se o cliente existe (Listagem de clientes:), se n existir erro = True
-
         // Valida se o corretor existe (Listagem de corretores), se n existir erro = True
-
         // Valida se o imóvel existe, e se está disponivel, se n existir ou n disponivel erro = True 
-            /*
-            Aluga ou Vende Imóvel: Recebe um identificador de um imóvel e o status indicando se o imóvel
-            deve ser alugado ou vendido. Se o imóvel estiver disponível deve mudar o status do imóvel e
-            retornar sucesso. Se o imóvel não existir deve retornar um erro 404, se ele já estiver alugado
-            ou vendido deve retornar um erro 400.
-            */
+
+        /*
+        Aluga ou Vende Imóvel: Recebe um identificador de um imóvel e o status indicando se o imóvel
+        deve ser alugado ou vendido. Se o imóvel estiver disponível deve mudar o status do imóvel e
+        retornar sucesso. Se o imóvel não existir deve retornar um erro 404, se ele já estiver alugado
+        ou vendido deve retornar um erro 400.
+        */
 
         aluguelRepository.save(aluguel);
 
-        /* 
-        Duvidas da rota:
-        se der erro continua mesmo salvando então como erro?
-        se um imóvel for salvo em um aluguél com erro ele continua disponivel ou não?
-        se não existir o corretor ou cliente deve retornar erro ou salva aluguel com status erro?
-        */
         if (erro) {
             String msg = (erroCliente && erroCorretor) ? "Cliente e corretor não encontrados" :
             erroCliente ? "Cliente não encontrado." :
             erroCorretor ? "Corretor não encontrado." :
             erroImovelNEncontrado ? "Imóvel não encontrado." :
-            "Imóvel já alugado.";
+            "Imóvel indisponível.";
 
             AluguelErroReturnDTO erroDTO = new AluguelErroReturnDTO();
             erroDTO.setAluguel(AluguelSuccesDTO.convert(aluguel));
