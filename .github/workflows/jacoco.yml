@@ -5,6 +5,10 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+
+defaults:
+  run:
+    working-directory: ./aluguel
   
 jobs:
   maven-build:
@@ -27,7 +31,7 @@ jobs:
         uses: madrapps/jacoco-report@v1.6.1
         with:
           paths: |
-            ${{ github.workspace }}/**/target/test-results/jacoco/jacoco.xml
+            ${{ github.workspace }}/**/aluguel/target/test-results/jacoco/jacoco.xml
           token: ${{ secrets.GITHUB_TOKEN }}
           min_coverage_overall: 1
           min-coverage-changed-files: 1
