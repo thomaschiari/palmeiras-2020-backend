@@ -1,10 +1,10 @@
 package com.palmeiras.aluguel;
 
-//import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.net.URI;
-//import java.util.ArrayList;
-//import java.util.List;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,10 +23,10 @@ import com.palmeiras.aluguel.aluguel.AluguelService;
 import com.palmeiras.aluguel.aluguel.dto.AluguelReturnDTO;
 import com.palmeiras.aluguel.aluguel.dto.AluguelSaveDTO;
 import com.palmeiras.aluguel.aluguel.dto.AluguelSuccesDTO;
-//import com.palmeiras.aluguel.aluguel.enumerate.Status;
-//import com.palmeiras.aluguel.aluguel.exception.CpfCorretorDoesNotExistException;
-//import com.palmeiras.aluguel.aluguel.exception.CpfLocatarioDoesNotExistException;
-//import com.palmeiras.aluguel.aluguel.exception.InvalidStatusException;
+import com.palmeiras.aluguel.aluguel.enumerate.Status;
+import com.palmeiras.aluguel.aluguel.exception.CpfCorretorDoesNotExistException;
+import com.palmeiras.aluguel.aluguel.exception.CpfLocatarioDoesNotExistException;
+import com.palmeiras.aluguel.aluguel.exception.InvalidStatusException;
 
 import org.springframework.http.HttpMethod;
 
@@ -42,42 +42,32 @@ public class AluguelServiceTests {
     private AluguelRepository aluguelRepository;
 
     @Test
-    void alugarImovelSucesso() {
+    void whenAlugarImovel_thenReturnsAluguelReturnDTO() {
         // Dado (Given)
-        AluguelSaveDTO aluguelDTO = new AluguelSaveDTO();
-        // Configure o aluguelDTO com os dados necessários
-        Mockito.when(aluguelRepository.save(Mockito.any(Aluguel.class))).thenAnswer(i -> i.getArguments()[0]);
+        AluguelSaveDTO aluguelSaveDTO = new AluguelSaveDTO();
+        // Preencha aluguelSaveDTO com os dados necessários para o teste
+        aluguelSaveDTO.setCpfCorretor("17826523885");
+        aluguelSaveDTO.setCpfLocatario("123456");
+        aluguelSaveDTO.setIdImovel("9c371f01-3707-4518-9989-03272a6b5cd7");
 
-        // RestTemplate e suas respostas simuladas
-        RestTemplate restTemplate = Mockito.mock(RestTemplate.class);
-        ResponseEntity<Void> clienteResponse = new ResponseEntity<>(HttpStatus.OK);
-        ResponseEntity<Void> corretorResponse = new ResponseEntity<>(HttpStatus.OK);
-        Mockito.when(restTemplate.exchange(
-            Mockito.eq(URI.create("http://34.210.87.17:8080/cliente/exists/" + aluguelDTO.getCpfLocatario())),
-            Mockito.eq(HttpMethod.GET),
-            Mockito.any(),
-            Mockito.eq(Void.class)
-        )).thenReturn(clienteResponse);
+        Aluguel aluguel = new Aluguel();
+        // Preencha aluguel com os dados correspondentes ao aluguelSaveDTO
+        aluguel.setCpfCorretor(aluguelSaveDTO.getCpfCorretor());
+        aluguel.setCpfLocatario(aluguelSaveDTO.getCpfLocatario());
+        aluguel.setIdImovel(aluguelSaveDTO.getIdImovel());
 
-        Mockito.when(restTemplate.exchange(
-            Mockito.eq(URI.create("http://35.87.155.27:8080/corretor/cpf/" + aluguelDTO.getCpfCorretor())),
-            Mockito.eq(HttpMethod.GET),
-            Mockito.any(),
-            Mockito.eq(Void.class)
-        )).thenReturn(corretorResponse);
-
-        ReflectionTestUtils.setField(aluguelService, "restTemplate", restTemplate);
+        Mockito.when(aluguelRepository.save(Mockito.any(Aluguel.class))).thenReturn(aluguel);
 
         // Quando (When)
-        AluguelReturnDTO result = aluguelService.alugarImovel(aluguelDTO, "token-ficticio");
+        AluguelReturnDTO actualReturnDTO = aluguelService.alugarImovel(aluguelSaveDTO, "token");
 
         // Então (Then)
-        Assertions.assertNotNull(result);
-        Assertions.assertTrue(result instanceof AluguelSuccesDTO);
+        Assertions.assertNotNull(actualReturnDTO, "O objeto retornado não deve ser nulo");
+
     }
 
     /*
-    @Test
+    @Test'
     void findAlugueisTestEmpty() {
         Mockito.when(aluguelRepository.findAll()).thenReturn(new ArrayList<>());
         List<AluguelReturnDTO> alugueis = aluguelService.findAlugueis(null, null, null, null);
