@@ -6,5 +6,5 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ImovelTransactionDTO {
-    private String status = "aluguel";
+    private String status = "Aluguel";
 }
