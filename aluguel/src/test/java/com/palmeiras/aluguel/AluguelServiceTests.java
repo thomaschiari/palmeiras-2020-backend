@@ -1,9 +1,10 @@
 package com.palmeiras.aluguel;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
+//import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.net.URI;
+//import java.util.ArrayList;
+//import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,15 +12,23 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.client.RestTemplate;
 
 import com.palmeiras.aluguel.aluguel.Aluguel;
 import com.palmeiras.aluguel.aluguel.AluguelRepository;
 import com.palmeiras.aluguel.aluguel.AluguelService;
 import com.palmeiras.aluguel.aluguel.dto.AluguelReturnDTO;
-import com.palmeiras.aluguel.aluguel.enumerate.Status;
-import com.palmeiras.aluguel.aluguel.exception.CpfCorretorDoesNotExistException;
-import com.palmeiras.aluguel.aluguel.exception.CpfLocatarioDoesNotExistException;
-import com.palmeiras.aluguel.aluguel.exception.InvalidStatusException;
+import com.palmeiras.aluguel.aluguel.dto.AluguelSaveDTO;
+import com.palmeiras.aluguel.aluguel.dto.AluguelSuccesDTO;
+//import com.palmeiras.aluguel.aluguel.enumerate.Status;
+//import com.palmeiras.aluguel.aluguel.exception.CpfCorretorDoesNotExistException;
+//import com.palmeiras.aluguel.aluguel.exception.CpfLocatarioDoesNotExistException;
+//import com.palmeiras.aluguel.aluguel.exception.InvalidStatusException;
+
+import org.springframework.http.HttpMethod;
 
 import org.junit.jupiter.api.Assertions;
 
@@ -31,6 +40,41 @@ public class AluguelServiceTests {
 
     @Mock
     private AluguelRepository aluguelRepository;
+
+    @Test
+    void alugarImovelSucesso() {
+        // Dado (Given)
+        AluguelSaveDTO aluguelDTO = new AluguelSaveDTO();
+        // Configure o aluguelDTO com os dados necessários
+        Mockito.when(aluguelRepository.save(Mockito.any(Aluguel.class))).thenAnswer(i -> i.getArguments()[0]);
+
+        // RestTemplate e suas respostas simuladas
+        RestTemplate restTemplate = Mockito.mock(RestTemplate.class);
+        ResponseEntity<Void> clienteResponse = new ResponseEntity<>(HttpStatus.OK);
+        ResponseEntity<Void> corretorResponse = new ResponseEntity<>(HttpStatus.OK);
+        Mockito.when(restTemplate.exchange(
+            Mockito.eq(URI.create("http://34.210.87.17:8080/cliente/exists/" + aluguelDTO.getCpfLocatario())),
+            Mockito.eq(HttpMethod.GET),
+            Mockito.any(),
+            Mockito.eq(Void.class)
+        )).thenReturn(clienteResponse);
+
+        Mockito.when(restTemplate.exchange(
+            Mockito.eq(URI.create("http://35.87.155.27:8080/corretor/cpf/" + aluguelDTO.getCpfCorretor())),
+            Mockito.eq(HttpMethod.GET),
+            Mockito.any(),
+            Mockito.eq(Void.class)
+        )).thenReturn(corretorResponse);
+
+        ReflectionTestUtils.setField(aluguelService, "restTemplate", restTemplate);
+
+        // Quando (When)
+        AluguelReturnDTO result = aluguelService.alugarImovel(aluguelDTO, "token-ficticio");
+
+        // Então (Then)
+        Assertions.assertNotNull(result);
+        Assertions.assertTrue(result instanceof AluguelSuccesDTO);
+    }
 
     /*
     @Test
