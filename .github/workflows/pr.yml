@@ -10,7 +10,11 @@ name: Pull Request
 
 on:
   pull_request:
-    branches: [ "master" ]
+    branches: [ "main" ]
+
+defaults:
+  run:
+    working-directory: ./aluguel
 
 jobs:
   build:
